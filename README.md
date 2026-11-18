@@ -23,7 +23,7 @@ Finding the owner of a key is a binary search over the sorted ring: `O(log N)`.
 ## Roadmap
 
 - [x] 1. Core `HashRing` + tests (virtual nodes, add/remove)
-- [ ] 2. Cache nodes
+- [x] 2. Cache nodes (`python -m node --name A --port 8001`, demo: `python scripts/demo_nodes.py`)
 - [ ] 3. Gateway + API + simulator
 - [ ] 4. Live dashboard
 - [ ] 5. Benchmarks
