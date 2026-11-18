@@ -63,3 +63,83 @@ def test_key_after_last_node_wraps_to_first():
     first_owner = ring._owners[ring._positions[0]]
     key = next(f"k{i}" for i in range(100_000) if _hash(f"k{i}") > last)
     assert ring.get_node(key) == first_owner
+
+
+# --- virtual nodes --------------------------------------------------------
+
+KEYS = [f"user{i}" for i in range(10_000)]
+
+
+def owners(ring: HashRing) -> dict[str, str]:
+    return {k: ring.get_node(k) for k in KEYS}
+
+
+def test_vnodes_must_be_positive():
+    with pytest.raises(ValueError):
+        HashRing(vnodes=0)
+
+
+def test_each_node_is_placed_vnodes_times():
+    ring = HashRing(vnodes=50)
+    ring.add_node("A")
+    ring.add_node("B")
+    assert len(ring._positions) == 100
+    assert ring.nodes == ["A", "B"]
+
+
+def test_keys_are_shared_almost_equally():
+    ring = make_ring("A", "B", "C", "D", "E")  # 5 nodes -> 20% each is ideal
+    counts = {n: 0 for n in ring.nodes}
+    for node in owners(ring).values():
+        counts[node] += 1
+    for n, c in counts.items():
+        assert 0.15 < c / len(KEYS) < 0.25, f"{n} got {c / len(KEYS):.1%}"
+
+
+# --- removing nodes -------------------------------------------------------
+
+def test_remove_unknown_node_raises():
+    with pytest.raises(KeyError):
+        make_ring("A").remove_node("Z")
+
+
+def test_remove_last_node_makes_ring_empty():
+    ring = make_ring("A")
+    ring.remove_node("A")
+    assert ring._positions == [] and ring._owners == {} and ring.nodes == []
+    with pytest.raises(LookupError):
+        ring.get_node("ali")
+
+
+def test_remove_moves_only_keys_of_removed_node():
+    ring = make_ring("A", "B", "C", "D")
+    before = owners(ring)
+    ring.remove_node("B")
+    after = owners(ring)
+    for k in KEYS:
+        if before[k] != "B":
+            assert after[k] == before[k]  # untouched keys stay put
+        else:
+            assert after[k] != "B"  # B's keys found a new home
+
+
+def test_add_moves_keys_only_to_new_node():
+    ring = make_ring("A", "B", "C", "D")
+    before = owners(ring)
+    ring.add_node("E")
+    after = owners(ring)
+    moved = [k for k in KEYS if before[k] != after[k]]
+    assert all(after[k] == "E" for k in moved)
+
+
+# --- the whole point: ring vs hash % N -------------------------------------
+
+def test_ring_moves_far_fewer_keys_than_modulo():
+    ring = make_ring("A", "B", "C", "D")
+    before = owners(ring)
+    ring.add_node("E")
+    after = owners(ring)
+    ring_moved = sum(before[k] != after[k] for k in KEYS) / len(KEYS)
+    mod_moved = sum(_hash(k) % 4 != _hash(k) % 5 for k in KEYS) / len(KEYS)
+    assert ring_moved < 0.30  # ideal is 1/5 = 20%
+    assert mod_moved > 0.70  # naive way moves ~80%

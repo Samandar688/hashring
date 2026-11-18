@@ -22,7 +22,7 @@ Finding the owner of a key is a binary search over the sorted ring: `O(log N)`.
 
 ## Roadmap
 
-- [ ] 1. Core `HashRing` + tests
+- [x] 1. Core `HashRing` + tests (virtual nodes, add/remove)
 - [ ] 2. Cache nodes
 - [ ] 3. Gateway + API + simulator
 - [ ] 4. Live dashboard
