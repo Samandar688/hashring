@@ -6,6 +6,7 @@ The gateway uses the HashRing to decide which node gets each key.
 
 import asyncio
 import os
+from collections.abc import Callable
 from typing import Any
 
 from fastapi import FastAPI, HTTPException
@@ -19,10 +20,16 @@ class Item(BaseModel):
     value: Any
 
 
-def create_app(name: str, allow_crash: bool = False, max_keys: int | None = None) -> FastAPI:
+def create_app(
+    name: str,
+    allow_crash: bool = False,
+    max_keys: int | None = None,
+    on_crash: Callable[[], None] | None = None,
+) -> FastAPI:
     """Build one cache node. Every node has its own empty storage.
 
-    allow_crash=True adds POST /admin/crash, which kills the process.
+    allow_crash=True adds POST /admin/crash, which kills the process
+    (or calls on_crash instead, when several nodes share one process).
     It exists only for demos (the dashboard "Crash" button).
     max_keys limits how many keys the node keeps, so a public demo
     cannot be filled until it runs out of memory.
@@ -62,7 +69,8 @@ def create_app(name: str, allow_crash: bool = False, max_keys: int | None = None
         @app.post("/admin/crash")
         async def crash() -> dict:
             # Answer first, then die a moment later: like a real crash, all data is lost.
-            asyncio.get_running_loop().call_later(0.2, lambda: _exit(1))
+            die = on_crash if on_crash is not None else (lambda: _exit(1))
+            asyncio.get_running_loop().call_later(0.2, die)
             return {"node": name, "crashing": True}
 
     return app

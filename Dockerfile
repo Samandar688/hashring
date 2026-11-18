@@ -25,6 +25,7 @@ USER app
 
 EXPOSE 8000
 
-# Default: the whole cluster in one container (good for a free one-container host).
+# Default: the whole cluster in one container and one process (fits a free 0.1 CPU / 512 MB host).
 # docker-compose.yml overrides this and runs every node in its own container.
-CMD ["sh", "-c", "python scripts/run_cluster.py --host 0.0.0.0 --port ${PORT:-8000}"]
+# "exec" makes Python PID 1, so it receives SIGTERM and shuts down cleanly.
+CMD ["sh", "-c", "exec python scripts/run_single_process.py --host 0.0.0.0 --port ${PORT:-8000}"]

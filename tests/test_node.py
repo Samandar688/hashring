@@ -70,6 +70,17 @@ def test_crash_endpoint_schedules_exit(monkeypatch):
     assert calls == [1]
 
 
+def test_crash_calls_on_crash_instead_of_exit(monkeypatch):
+    exits, crashes = [], []
+    monkeypatch.setattr("node.app._exit", exits.append)
+    with TestClient(create_app("A", allow_crash=True, on_crash=lambda: crashes.append(1))) as c:
+        c.post("/admin/crash")
+        import time
+
+        time.sleep(0.4)
+    assert crashes == [1] and exits == []
+
+
 def test_full_node_refuses_new_keys_but_allows_updates():
     c = TestClient(create_app("A", max_keys=2))
     c.put("/keys/a", json={"value": 1})

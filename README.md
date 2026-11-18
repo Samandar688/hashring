@@ -89,6 +89,7 @@ API docs are at `/docs`.
 - **100 virtual nodes per server** – the benchmark shows 1 → 100 vnodes cuts the most loaded node from 2.25× to 1.19× the average; 500 only gets to 1.08× for 5× the points.
 - **Membership changes behind one `asyncio.Lock`** – a health check and an admin "remove" never edit the ring at the same time.
 - **Short connect timeout (0.3 s)** – one dead node must not stall all traffic while we wait for it.
+- **One process on small hosts** – Render's free plan has 0.1 CPU and 512 MB. Six Python processes did not start in time there, so the one-container image runs all nodes and the gateway as separate HTTP servers inside one process: it starts in ~13 s and uses ~46 MB (tested with `docker run --cpus 0.1 --memory 512m`). Docker Compose still runs one container per node.
 - **Safety limits for a public demo** – keys are limited to safe characters, values to 1 KB, each node to 5,000 keys; the crash endpoint is off unless a node is started with `--allow-crash`.
 
 ## Limitations (on purpose, for a learning project)

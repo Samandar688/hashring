@@ -38,7 +38,7 @@ def start_gateway(
     return subprocess.Popen(args)
 
 
-def wait_until_up(base_url: str, path: str = "/health", timeout: float = 15.0) -> None:
+def wait_until_up(base_url: str, path: str = "/health", timeout: float = 60.0) -> None:
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
         try:
