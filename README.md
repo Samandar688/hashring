@@ -3,6 +3,8 @@
 A small **distributed cache built on consistent hashing**, with a live dashboard.
 Crash a node and watch only its keys move. Add a node and watch it take just its share.
 
+**[Live demo → hashring.onrender.com](https://hashring.onrender.com)** (free hosting: the first visit may take ~30 s to wake up)
+
 ![tests](https://github.com/Samandar688/hashring/actions/workflows/tests.yml/badge.svg)
 
 <p align="center"><img src="docs/demo.gif" alt="Dashboard: node B crashes, its points leave the ring, it restarts, then node D joins" width="380"></p>
@@ -67,7 +69,7 @@ pip install -e ".[dev]"
 python scripts/run_cluster.py
 ```
 
-Then open **http://localhost:8000**. Start the simulator, press **Crash** on a node,
+Then open **http://localhost:8000** (or just use the [live demo](https://hashring.onrender.com)). Start the simulator, press **Crash** on a node,
 add a spare node, or type a key to see the binary search step by step.
 API docs are at `/docs`.
 
