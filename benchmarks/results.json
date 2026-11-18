@@ -1,0 +1,202 @@
+{
+  "movement": [
+    {
+      "nodes_before": 2,
+      "ring_moved": 0.33175,
+      "mod_moved": 0.6673,
+      "ideal": 0.3333333333333333
+    },
+    {
+      "nodes_before": 3,
+      "ring_moved": 0.2549,
+      "mod_moved": 0.7477,
+      "ideal": 0.25
+    },
+    {
+      "nodes_before": 4,
+      "ring_moved": 0.2174,
+      "mod_moved": 0.79995,
+      "ideal": 0.2
+    },
+    {
+      "nodes_before": 5,
+      "ring_moved": 0.1741,
+      "mod_moved": 0.8304,
+      "ideal": 0.16666666666666666
+    },
+    {
+      "nodes_before": 6,
+      "ring_moved": 0.14215,
+      "mod_moved": 0.85545,
+      "ideal": 0.14285714285714285
+    },
+    {
+      "nodes_before": 7,
+      "ring_moved": 0.11675,
+      "mod_moved": 0.87445,
+      "ideal": 0.125
+    },
+    {
+      "nodes_before": 8,
+      "ring_moved": 0.10665,
+      "mod_moved": 0.88465,
+      "ideal": 0.1111111111111111
+    },
+    {
+      "nodes_before": 9,
+      "ring_moved": 0.10115,
+      "mod_moved": 0.89875,
+      "ideal": 0.1
+    },
+    {
+      "nodes_before": 10,
+      "ring_moved": 0.08295,
+      "mod_moved": 0.91115,
+      "ideal": 0.09090909090909091
+    },
+    {
+      "nodes_before": 11,
+      "ring_moved": 0.08215,
+      "mod_moved": 0.91355,
+      "ideal": 0.08333333333333333
+    },
+    {
+      "nodes_before": 12,
+      "ring_moved": 0.0639,
+      "mod_moved": 0.92385,
+      "ideal": 0.07692307692307693
+    },
+    {
+      "nodes_before": 13,
+      "ring_moved": 0.0713,
+      "mod_moved": 0.9263,
+      "ideal": 0.07142857142857142
+    },
+    {
+      "nodes_before": 14,
+      "ring_moved": 0.0782,
+      "mod_moved": 0.9351,
+      "ideal": 0.06666666666666667
+    },
+    {
+      "nodes_before": 15,
+      "ring_moved": 0.0529,
+      "mod_moved": 0.9357,
+      "ideal": 0.0625
+    },
+    {
+      "nodes_before": 16,
+      "ring_moved": 0.0652,
+      "mod_moved": 0.943,
+      "ideal": 0.058823529411764705
+    },
+    {
+      "nodes_before": 17,
+      "ring_moved": 0.0567,
+      "mod_moved": 0.94405,
+      "ideal": 0.05555555555555555
+    },
+    {
+      "nodes_before": 18,
+      "ring_moved": 0.0429,
+      "mod_moved": 0.9488,
+      "ideal": 0.05263157894736842
+    },
+    {
+      "nodes_before": 19,
+      "ring_moved": 0.0574,
+      "mod_moved": 0.952,
+      "ideal": 0.05
+    },
+    {
+      "nodes_before": 20,
+      "ring_moved": 0.0447,
+      "mod_moved": 0.95125,
+      "ideal": 0.047619047619047616
+    }
+  ],
+  "balance": [
+    {
+      "vnodes": 1,
+      "min_share": 0.579,
+      "max_share": 22.526,
+      "stdev_share": 7.293023789896753,
+      "max_over_avg": 2.2526
+    },
+    {
+      "vnodes": 5,
+      "min_share": 3.894,
+      "max_share": 17.798,
+      "stdev_share": 4.714667920437239,
+      "max_over_avg": 1.7797999999999998
+    },
+    {
+      "vnodes": 10,
+      "min_share": 6.38,
+      "max_share": 14.574000000000002,
+      "stdev_share": 2.6037034777408894,
+      "max_over_avg": 1.4574000000000003
+    },
+    {
+      "vnodes": 25,
+      "min_share": 7.109999999999999,
+      "max_share": 13.045000000000002,
+      "stdev_share": 1.5508575692177544,
+      "max_over_avg": 1.3045000000000002
+    },
+    {
+      "vnodes": 50,
+      "min_share": 6.776999999999999,
+      "max_share": 12.426,
+      "stdev_share": 1.644395633659978,
+      "max_over_avg": 1.2426
+    },
+    {
+      "vnodes": 100,
+      "min_share": 8.869,
+      "max_share": 11.914,
+      "stdev_share": 1.0106532540886612,
+      "max_over_avg": 1.1914
+    },
+    {
+      "vnodes": 200,
+      "min_share": 8.233,
+      "max_share": 10.961,
+      "stdev_share": 0.7917484448990096,
+      "max_over_avg": 1.0961
+    },
+    {
+      "vnodes": 500,
+      "min_share": 9.391,
+      "max_share": 10.814,
+      "stdev_share": 0.4144992159220568,
+      "max_over_avg": 1.0814
+    }
+  ],
+  "lookup": [
+    {
+      "points": 100,
+      "binary_us": 0.0809000339359045,
+      "linear_us": 1.2914499966427684,
+      "speedup": 15.963528490803338
+    },
+    {
+      "points": 1000,
+      "binary_us": 0.11400086805224419,
+      "linear_us": 14.84749955125153,
+      "speedup": 130.24023242039908
+    },
+    {
+      "points": 10000,
+      "binary_us": 0.141998752951622,
+      "linear_us": 166.46400094032288,
+      "speedup": 1172.2919918672526
+    },
+    {
+      "points": 100000,
+      "binary_us": 0.1840014010667801,
+      "linear_us": 1561.4360012114048,
+      "speedup": 8486.000607379663
+    }
+  ]
+}
