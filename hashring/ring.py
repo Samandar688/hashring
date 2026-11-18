@@ -45,6 +45,10 @@ class HashRing:
         """Names of the real nodes on the ring."""
         return list(self._nodes)
 
+    def points(self) -> list[tuple[int, str]]:
+        """All (position, node) points on the ring, in clockwise order."""
+        return [(pos, self._owners[pos]) for pos in self._positions]
+
     def add_node(self, name: str) -> None:
         """Place a node on the ring `vnodes` times."""
         if name in self._nodes:

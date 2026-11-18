@@ -85,6 +85,10 @@ def test_each_node_is_placed_vnodes_times():
     ring.add_node("B")
     assert len(ring._positions) == 100
     assert ring.nodes == ["A", "B"]
+    points = ring.points()
+    assert len(points) == 100
+    assert [p for p, _ in points] == sorted(p for p, _ in points)
+    assert {n for _, n in points} == {"A", "B"}
 
 
 def test_keys_are_shared_almost_equally():
