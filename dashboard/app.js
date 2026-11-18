@@ -266,6 +266,17 @@ $("nodes").addEventListener("click", async (e) => {
   }
 });
 
+// Prefill the form with a spare node the gateway knows about (until the user types).
+let addFormTouched = false;
+["new-name", "new-url"].forEach((id) => $(id).addEventListener("input", () => { addFormTouched = true; }));
+
+function prefillSpare() {
+  if (addFormTouched) return;
+  const spare = (snap.spares || [])[0];
+  $("new-name").value = spare ? spare.name : "";
+  $("new-url").value = spare ? spare.url : "";
+}
+
 $("add-node").addEventListener("submit", async (e) => {
   e.preventDefault();
   const name = $("new-name").value.trim();
@@ -279,6 +290,7 @@ $("add-node").addEventListener("submit", async (e) => {
     $("node-msg").textContent = r.alive
       ? `Node ${name} joined the ring.`
       : `Node ${name} registered, but it does not answer yet.`;
+    addFormTouched = false;
   } catch (err) {
     $("node-msg").textContent = errorText(err);
   }
@@ -390,6 +402,7 @@ function update(next) {
   drawRing();
   drawParticles(deltas);
   drawNodes(rates);
+  prefillSpare();
   drawSimulator();
   drawChart();
   drawLookup();

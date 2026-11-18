@@ -70,6 +70,15 @@ def test_crash_endpoint_schedules_exit(monkeypatch):
     assert calls == [1]
 
 
+def test_full_node_refuses_new_keys_but_allows_updates():
+    c = TestClient(create_app("A", max_keys=2))
+    c.put("/keys/a", json={"value": 1})
+    c.put("/keys/b", json={"value": 1})
+    assert c.put("/keys/c", json={"value": 1}).status_code == 507
+    assert c.put("/keys/a", json={"value": 2}).status_code == 200  # existing key: fine
+    assert c.get("/health").json()["keys"] == 2
+
+
 def test_two_nodes_do_not_share_storage():
     a, b = client("A"), client("B")
     a.put("/keys/ali", json={"value": 1})

@@ -1,0 +1,40 @@
+# Every node in its own container, like a real cluster.
+#   docker compose up --build      then open http://localhost:8000
+# A crashed node container is restarted by Docker (empty, like a real restart).
+
+x-node: &node
+  image: hashring
+  build: .
+  restart: unless-stopped
+
+services:
+  node-a:
+    <<: *node
+    command: python -m node --name A --host 0.0.0.0 --port 8000 --allow-crash --max-keys 5000
+  node-b:
+    <<: *node
+    command: python -m node --name B --host 0.0.0.0 --port 8000 --allow-crash --max-keys 5000
+  node-c:
+    <<: *node
+    command: python -m node --name C --host 0.0.0.0 --port 8000 --allow-crash --max-keys 5000
+  node-d:
+    <<: *node
+    command: python -m node --name D --host 0.0.0.0 --port 8000 --allow-crash --max-keys 5000
+  node-e:
+    <<: *node
+    command: python -m node --name E --host 0.0.0.0 --port 8000 --allow-crash --max-keys 5000
+
+  gateway:
+    <<: *node
+    command: >
+      python -m gateway --host 0.0.0.0 --port 8000 --health-interval 1
+      --node A=http://node-a:8000 --node B=http://node-b:8000 --node C=http://node-c:8000
+      --spare D=http://node-d:8000 --spare E=http://node-e:8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      - node-a
+      - node-b
+      - node-c
+      - node-d
+      - node-e

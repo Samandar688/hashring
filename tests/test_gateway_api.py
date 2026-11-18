@@ -86,6 +86,19 @@ def test_dashboard_is_served(api):
     assert api.get("/cluster").status_code == 200  # API still wins over static files
 
 
+def test_big_value_is_rejected(api):
+    assert api.put("/keys/big", json={"value": "x" * 2000}).status_code == 413
+    assert api.get("/keys/big").status_code == 404  # nothing was stored
+
+
+def test_spares_are_listed_until_added():
+    app = create_app(urls("A"), health_interval=3600, transport=FakeCluster("A", "D"), spares=urls("D"))
+    with TestClient(app) as c:
+        assert c.get("/cluster").json()["spares"] == [{"name": "D", "url": "http://d.node"}]
+        assert c.post("/nodes", json={"name": "D", "url": "http://d.node"}).status_code == 201
+        assert c.get("/cluster").json()["spares"] == []
+
+
 def test_simulator_settings(api):
     r = api.post("/simulator", json={"running": True, "rate": 50})
     assert r.json() == {"running": True, "rate": 50}

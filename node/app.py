@@ -19,11 +19,13 @@ class Item(BaseModel):
     value: Any
 
 
-def create_app(name: str, allow_crash: bool = False) -> FastAPI:
+def create_app(name: str, allow_crash: bool = False, max_keys: int | None = None) -> FastAPI:
     """Build one cache node. Every node has its own empty storage.
 
     allow_crash=True adds POST /admin/crash, which kills the process.
-    It exists only for local demos (the dashboard "Crash" button).
+    It exists only for demos (the dashboard "Crash" button).
+    max_keys limits how many keys the node keeps, so a public demo
+    cannot be filled until it runs out of memory.
     """
     app = FastAPI(title=f"cache node {name}")
     store: dict[str, Any] = {}
@@ -34,6 +36,8 @@ def create_app(name: str, allow_crash: bool = False) -> FastAPI:
 
     @app.put("/keys/{key}")
     async def put_key(key: str, item: Item) -> dict:
+        if max_keys is not None and key not in store and len(store) >= max_keys:
+            raise HTTPException(status_code=507, detail=f"node {name} is full ({max_keys} keys)")
         store[key] = item.value
         return {"node": name, "key": key, "stored": True}
 

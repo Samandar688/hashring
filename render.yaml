@@ -1,0 +1,9 @@
+# One-click deploy on Render (render.com -> New -> Blueprint -> pick this repo).
+# Runs the whole cluster in one container (see Dockerfile CMD). Render sets $PORT.
+services:
+  - type: web
+    name: hashring
+    runtime: docker
+    plan: free
+    healthCheckPath: /cluster
+    autoDeploy: true

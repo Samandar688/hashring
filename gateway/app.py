@@ -1,7 +1,9 @@
 """Gateway HTTP API. Clients talk only to this server, never to nodes."""
 
 import asyncio
+import json
 import logging
+import os
 import pathlib
 from contextlib import asynccontextmanager
 from typing import Annotated, Any
@@ -16,7 +18,10 @@ from hashring.ring import _hash
 
 log = logging.getLogger("gateway")
 
-DASHBOARD_DIR = pathlib.Path(__file__).resolve().parent.parent / "dashboard"
+DASHBOARD_DIR = pathlib.Path(
+    os.environ.get("HASHRING_DASHBOARD_DIR", pathlib.Path(__file__).resolve().parent.parent / "dashboard")
+)
+MAX_VALUE_BYTES = 1024  # a cache demo does not need big values; protects a public deploy
 
 # Keys go into node URLs, so we allow only safe characters.
 Key = Annotated[str, Path(pattern=r"^[A-Za-z0-9_.:-]{1,200}$")]
@@ -61,13 +66,15 @@ def create_app(
     nodes: dict[str, str],
     health_interval: float = 2.0,
     transport: httpx.AsyncBaseTransport | None = None,
+    spares: dict[str, str] | None = None,
+    max_value_bytes: int = MAX_VALUE_BYTES,
 ) -> FastAPI:
     """Build the gateway. `transport` lets tests plug in fake nodes."""
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         async with httpx.AsyncClient(transport=transport) as client:
-            gw = Gateway(nodes, client)
+            gw = Gateway(nodes, client, spares=spares)
             app.state.gw = gw
             await gw.check_health()
             tasks = [
@@ -103,7 +110,12 @@ def create_app(
 
     @app.put("/keys/{key}")
     async def put_key(key: Key, item: Item) -> dict:
+        size = len(json.dumps(item.value))
+        if size > max_value_bytes:
+            raise HTTPException(status_code=413, detail=f"value is {size} bytes, limit is {max_value_bytes}")
         node, r = await route("PUT", key, json={"value": item.value})
+        if r.status_code == 507:
+            raise HTTPException(status_code=507, detail={"node": node, "error": "node is full"})
         if r.is_error:
             raise HTTPException(status_code=502, detail={"node": node, "error": "node refused the write"})
         return r.json()

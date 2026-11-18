@@ -27,8 +27,15 @@ class NoNodesAlive(Exception):
 
 
 class Gateway:
-    def __init__(self, nodes: dict[str, str], client: httpx.AsyncClient, vnodes: int = 100) -> None:
+    def __init__(
+        self,
+        nodes: dict[str, str],
+        client: httpx.AsyncClient,
+        vnodes: int = 100,
+        spares: dict[str, str] | None = None,
+    ) -> None:
         self.urls: dict[str, str] = dict(nodes)  # every known node: name -> base url
+        self.spares: dict[str, str] = dict(spares or {})  # running, not added yet (dashboard hint)
         self.client = client
         self.ring = HashRing(vnodes=vnodes)  # only the nodes that are alive
         self.alive: set[str] = set()
@@ -216,6 +223,7 @@ class Gateway:
                 for name, url in sorted(self.urls.items())
             ],
             "points": [{"pos": pos, "node": node} for pos, node in self.ring.points()],
+            "spares": [{"name": n, "url": u} for n, u in sorted(self.spares.items()) if n not in self.urls],
             "stats": dict(self.stats),
             "simulator": {"running": self.sim_running, "rate": self.sim_rate},
         }
