@@ -17,7 +17,9 @@ import httpx
 
 from hashring.ring import RING_SIZE, HashRing
 
-TIMEOUT = 2.0
+# A dead node must be noticed fast: connecting gets 0.3 s (on Windows a refused
+# localhost connection can hang ~2 s otherwise), reading an answer gets 2 s.
+TIMEOUT = httpx.Timeout(2.0, connect=0.3)
 
 
 class NoNodesAlive(Exception):
@@ -49,7 +51,7 @@ class Gateway:
     async def _ping(self, name: str) -> int | None:
         """Number of keys on the node, or None if it does not answer."""
         try:
-            r = await self.client.get(f"{self.urls[name]}/health", timeout=1.0)
+            r = await self.client.get(f"{self.urls[name]}/health", timeout=httpx.Timeout(1.0, connect=0.3))
             r.raise_for_status()
             return int(r.json()["keys"])
         except (httpx.HTTPError, KeyError, ValueError, TypeError):
@@ -107,6 +109,15 @@ class Gateway:
             del self.urls[name]
             self._event("node_removed", name, moved=moved)
             return moved
+
+    async def crash_node(self, name: str) -> None:
+        """Ask a node to kill itself (demo only). The health check notices later."""
+        if name not in self.urls:
+            raise KeyError(f"node {name!r} is not registered")
+        r = await self.client.post(f"{self.urls[name]}/admin/crash", timeout=TIMEOUT)
+        if r.status_code == 404:
+            raise PermissionError(f"node {name!r} was not started with --allow-crash")
+        r.raise_for_status()
 
     # ---- moving keys ----------------------------------------------------
 

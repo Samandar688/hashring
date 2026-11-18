@@ -13,8 +13,11 @@ def node_url(port: int) -> str:
     return f"http://127.0.0.1:{port}"
 
 
-def start_node(name: str, port: int) -> subprocess.Popen:
-    return subprocess.Popen([sys.executable, "-m", "node", "--name", name, "--port", str(port)])
+def start_node(name: str, port: int, allow_crash: bool = False) -> subprocess.Popen:
+    args = [sys.executable, "-m", "node", "--name", name, "--port", str(port)]
+    if allow_crash:
+        args.append("--allow-crash")
+    return subprocess.Popen(args)
 
 
 def start_gateway(nodes: dict[str, int], port: int = 8000, health_interval: float = 1.0) -> subprocess.Popen:

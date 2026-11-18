@@ -72,6 +72,20 @@ def test_graceful_remove_over_http(api):
     assert all(api.get(f"/keys/user{i}").status_code == 200 for i in range(30))
 
 
+def test_crash_needs_flag_and_known_node(api):
+    # Fake nodes are built without allow_crash, so the node says 404 -> gateway 409.
+    assert api.post("/nodes/A/crash").status_code == 409
+    assert api.post("/nodes/Z/crash").status_code == 404
+
+
+def test_dashboard_is_served(api):
+    r = api.get("/")
+    assert r.status_code == 200
+    assert "<title>HashRing Dashboard</title>" in r.text
+    assert api.get("/app.js").status_code == 200
+    assert api.get("/cluster").status_code == 200  # API still wins over static files
+
+
 def test_simulator_settings(api):
     r = api.post("/simulator", json={"running": True, "rate": 50})
     assert r.json() == {"running": True, "rate": 50}

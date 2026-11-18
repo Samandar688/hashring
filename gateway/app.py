@@ -2,17 +2,21 @@
 
 import asyncio
 import logging
+import pathlib
 from contextlib import asynccontextmanager
 from typing import Annotated, Any
 
 import httpx
 from fastapi import FastAPI, HTTPException, Path
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from gateway.core import Gateway, NoNodesAlive
 from hashring.ring import _hash
 
 log = logging.getLogger("gateway")
+
+DASHBOARD_DIR = pathlib.Path(__file__).resolve().parent.parent / "dashboard"
 
 # Keys go into node URLs, so we allow only safe characters.
 Key = Annotated[str, Path(pattern=r"^[A-Za-z0-9_.:-]{1,200}$")]
@@ -147,6 +151,18 @@ def create_app(
             raise HTTPException(status_code=404, detail=str(e))
         return {"removed": name, "moved": moved}
 
+    @app.post("/nodes/{name}/crash")
+    async def crash_node(name: str) -> dict:
+        try:
+            await gw().crash_node(name)
+        except KeyError as e:
+            raise HTTPException(status_code=404, detail=str(e))
+        except PermissionError as e:
+            raise HTTPException(status_code=409, detail=str(e))
+        except httpx.HTTPError:
+            raise HTTPException(status_code=502, detail=f"node {name!r} did not answer")
+        return {"crashed": name}
+
     # ---- simulator ------------------------------------------------------
 
     @app.post("/simulator")
@@ -154,5 +170,10 @@ def create_app(
         gw().sim_running = settings.running
         gw().sim_rate = settings.rate
         return {"running": gw().sim_running, "rate": gw().sim_rate}
+
+    # ---- dashboard (mounted last, so API routes win) ---------------------
+
+    if DASHBOARD_DIR.is_dir():
+        app.mount("/", StaticFiles(directory=DASHBOARD_DIR, html=True), name="dashboard")
 
     return app

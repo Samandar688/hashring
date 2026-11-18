@@ -55,6 +55,21 @@ def test_list_keys_is_sorted():
     assert c.get("/keys").json()["keys"] == ["ali", "sami", "vali"]
 
 
+def test_crash_endpoint_is_off_by_default():
+    assert client().post("/admin/crash").status_code == 404
+
+
+def test_crash_endpoint_schedules_exit(monkeypatch):
+    calls = []
+    monkeypatch.setattr("node.app._exit", calls.append)
+    with TestClient(create_app("A", allow_crash=True)) as c:
+        assert c.post("/admin/crash").json() == {"node": "A", "crashing": True}
+        import time
+
+        time.sleep(0.4)  # the exit is scheduled 0.2 s later
+    assert calls == [1]
+
+
 def test_two_nodes_do_not_share_storage():
     a, b = client("A"), client("B")
     a.put("/keys/ali", json={"value": 1})

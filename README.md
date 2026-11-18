@@ -25,7 +25,7 @@ Finding the owner of a key is a binary search over the sorted ring: `O(log N)`.
 - [x] 1. Core `HashRing` + tests (virtual nodes, add/remove)
 - [x] 2. Cache nodes (`python -m node --name A --port 8001`, demo: `python scripts/demo_nodes.py`)
 - [x] 3. Gateway + API + simulator (`python scripts/run_cluster.py`, demo: `python scripts/demo_gateway.py`)
-- [ ] 4. Live dashboard
+- [x] 4. Live dashboard (`python scripts/run_cluster.py`, then open http://127.0.0.1:8000)
 - [ ] 5. Benchmarks
 - [ ] 6. Docker, deploy, demo GIF
 

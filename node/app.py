@@ -4,18 +4,27 @@ Many copies of this service run at the same time (A, B, C ...).
 The gateway uses the HashRing to decide which node gets each key.
 """
 
+import asyncio
+import os
 from typing import Any
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+
+# Kept as a module name so tests can replace it and survive a "crash".
+_exit = os._exit
 
 
 class Item(BaseModel):
     value: Any
 
 
-def create_app(name: str) -> FastAPI:
-    """Build one cache node. Every node has its own empty storage."""
+def create_app(name: str, allow_crash: bool = False) -> FastAPI:
+    """Build one cache node. Every node has its own empty storage.
+
+    allow_crash=True adds POST /admin/crash, which kills the process.
+    It exists only for local demos (the dashboard "Crash" button).
+    """
     app = FastAPI(title=f"cache node {name}")
     store: dict[str, Any] = {}
 
@@ -43,5 +52,13 @@ def create_app(name: str) -> FastAPI:
     @app.get("/keys")
     async def list_keys() -> dict:
         return {"node": name, "keys": sorted(store)}
+
+    if allow_crash:
+
+        @app.post("/admin/crash")
+        async def crash() -> dict:
+            # Answer first, then die a moment later: like a real crash, all data is lost.
+            asyncio.get_running_loop().call_later(0.2, lambda: _exit(1))
+            return {"node": name, "crashing": True}
 
     return app

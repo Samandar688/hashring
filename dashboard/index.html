@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HashRing Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>HashRing</h1>
+    <span class="sub">consistent hashing cache, live</span>
+    <span id="conn" class="pill">connecting…</span>
+  </header>
+
+  <main class="grid">
+    <section class="card ring-card">
+      <h2>Hash ring</h2>
+      <svg id="ring" viewBox="-250 -250 500 500" role="img" aria-label="Hash ring with virtual nodes"></svg>
+      <p class="hint">Each dot is a virtual node (100 per server). A key walks clockwise to the next dot.</p>
+    </section>
+
+    <section class="card">
+      <h2>Nodes</h2>
+      <table class="nodes">
+        <thead><tr><th>Node</th><th>Status</th><th>Keys</th><th>Req/s</th><th></th></tr></thead>
+        <tbody id="nodes"></tbody>
+      </table>
+      <form id="add-node" class="row">
+        <input id="new-name" value="D" aria-label="Node name" size="4">
+        <input id="new-url" value="http://127.0.0.1:8004" aria-label="Node URL">
+        <button type="submit">Add node</button>
+      </form>
+      <p id="node-msg" class="msg"></p>
+    </section>
+
+    <section class="card">
+      <h2>Traffic simulator</h2>
+      <div class="row">
+        <button id="sim-toggle" type="button">Start</button>
+        <input id="rate" type="range" min="1" max="200" value="20" aria-label="Requests per second">
+        <span id="rate-label">20 req/s</span>
+      </div>
+      <div class="stats">
+        <div><span id="s-writes">0</span><small>writes</small></div>
+        <div><span id="s-hits">0</span><small>hits</small></div>
+        <div><span id="s-misses">0</span><small>misses</small></div>
+        <div><span id="s-hitrate">–</span><small>hit rate</small></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Find a key (binary search)</h2>
+      <form id="lookup" class="row">
+        <input id="key" value="user42" aria-label="Key">
+        <button type="submit">Locate</button>
+        <button type="button" id="write">Write</button>
+      </form>
+      <p id="key-err" class="msg err"></p>
+      <div id="lookup-result" class="lookup"></div>
+    </section>
+
+    <section class="card wide">
+      <h2>Requests per second</h2>
+      <svg id="chart" viewBox="0 0 640 170" role="img" aria-label="Requests per second per node"></svg>
+    </section>
+
+    <section class="card wide">
+      <h2>Events</h2>
+      <ul id="events" class="events"></ul>
+    </section>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
